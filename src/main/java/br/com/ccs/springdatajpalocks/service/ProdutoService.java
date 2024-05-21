@@ -75,6 +75,9 @@ public class ProdutoService {
 
     private void checkTransacaoELockMode(Produto produto) {
         log.info("Transação ativa: {}", TransactionSynchronizationManager.isActualTransactionActive());
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+            return;
+        }
         log.info("Lock Mode: {}", repository.getEntityManager().getLockMode(produto));
     }
 }

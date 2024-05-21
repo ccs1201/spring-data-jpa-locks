@@ -1,12 +1,8 @@
 package br.com.ccs.springdatajpalocks.service;
 
-import br.com.ccs.springdatajpalocks.entities.Produto;
 import jakarta.inject.Inject;
 import jakarta.persistence.LockModeType;
-import jakarta.persistence.TransactionRequiredException;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.repository.Lock;
@@ -14,31 +10,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
 @SpringBootTest
 @Slf4j
 class ProdutoServiceTest {
 
     @Inject
     private ProdutoService produtoService;
-    private Produto produto;
-
-    @BeforeEach
-    void setUp() {
-        produto = Produto.builder()
-                .id(UUID.fromString("48446e80-2507-454b-9071-80711e1adafc"))
-                .build();
-    }
+    private static final UUID id = UUID.fromString("48446e80-2507-454b-9071-80711e1adafc");
 
     @Test
     void testComLockNoRepository() {
         log.info("Teste ComLockNoRepository");
-        produtoService.findComLockNoRepository(produto.getId());
+        assertDoesNotThrow(() ->
+                produtoService.findComLockNoRepository(id));
     }
 
     @Test
     void testComLockNoService() {
         log.info("Teste ComLockNoService");
-        produtoService.findComLockNoService(produto.getId());
+        assertDoesNotThrow(() ->
+                produtoService.findComLockNoService(id));
     }
 
     @Test
@@ -46,25 +39,28 @@ class ProdutoServiceTest {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     void testComLockNoChamador() {
         log.info("Teste ComLockNoChamador");
-        produtoService.findComLockNoChamador(produto.getId());
+        assertDoesNotThrow(() ->
+                produtoService.findComLockNoChamador(id));
     }
 
     @Test
     void testSemLock() {
         log.info("Teste semLock");
-        produtoService.findSemLock(produto.getId());
+        assertDoesNotThrow(() ->
+                produtoService.findSemLock(id));
     }
 
     @Test
     void testComLockViaEntityManager() {
         log.info("Teste ComLockViaEntityManager");
-        produtoService.findComLockViaEntityManager(produto.getId());
+        assertDoesNotThrow(() ->
+                produtoService.findComLockViaEntityManager(id));
     }
 
     @Test
     void testSemTransacao() {
         log.info("Teste SemTransacao");
-        Assertions.assertThrows(TransactionRequiredException.class, () ->
-                produtoService.findSemTransacao(produto.getId()));
+        assertDoesNotThrow(() ->
+                produtoService.findSemTransacao(id));
     }
 }
