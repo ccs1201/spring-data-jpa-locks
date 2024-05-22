@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -81,8 +82,8 @@ public class ProdutoService {
     }
 
     private void checkTransacaoELockMode(Produto produto) {
-        log.info("Transação ativa: {}", repository.getEntityManager().isJoinedToTransaction());
-        if (!repository.getEntityManager().isJoinedToTransaction()) {
+        log.info("Transação ativa: {}", TransactionSynchronizationManager.isActualTransactionActive());
+        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             return;
         }
         log.info("Lock Mode: {}", repository.getEntityManager().getLockMode(produto));
