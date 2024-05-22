@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -73,12 +72,21 @@ public class ProdutoService {
                 .orElseThrow(() -> new RuntimeException("Produto inexistente.")));
     }
 
+    @Transactional(readOnly = true)
+    public void findComReadOnly(UUID id) {
+        var p = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Produto inexistente."));
+
+        checkTransacaoELockMode(p);
+    }
+
     private void checkTransacaoELockMode(Produto produto) {
-        log.info("Transação ativa: {}", TransactionSynchronizationManager.isActualTransactionActive());
-        if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+        log.info("Transação ativa: {}", repository.getEntityManager().isJoinedToTransaction());
+        if (!repository.getEntityManager().isJoinedToTransaction()) {
             return;
         }
         log.info("Lock Mode: {}", repository.getEntityManager().getLockMode(produto));
+
     }
 }
 
