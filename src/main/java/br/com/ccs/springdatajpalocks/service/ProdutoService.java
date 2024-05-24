@@ -60,10 +60,8 @@ public class ProdutoService {
 
     @Transactional
     public void findComLockViaEntityManager(UUID id) {
-        var produto = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto inexistente."));
-
-        repository.getEntityManager().lock(produto, LockModeType.PESSIMISTIC_WRITE);
+        var produto = repository.getEntityManager()
+                .find(Produto.class, id, LockModeType.PESSIMISTIC_WRITE);
 
         checkTransacaoELockMode(produto);
     }
