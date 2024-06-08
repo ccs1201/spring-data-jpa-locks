@@ -85,7 +85,6 @@ public class ProdutoService {
             return;
         }
         log.info("Lock Mode: {}", repository.getEntityManager().getLockMode(produto));
-
     }
 }
 
