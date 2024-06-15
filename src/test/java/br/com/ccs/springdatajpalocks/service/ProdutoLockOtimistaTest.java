@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
@@ -27,13 +28,13 @@ public class ProdutoLockOtimistaTest {
     private ProdutoLockOtimistaRepository repositoryComVersion;
     @Autowired
     private ProdutoRepository repositorySemVersion;
-    private UUID id = UUID.fromString("48446e80-2507-454b-9071-80711e1adafc");
+    private static final UUID id = UUID.fromString("48446e80-2507-454b-9071-80711e1adafc");
 
 
     @Test
-    void testUpdateConcorrenteComVersion() {
+    void testUpdateConcorrenteComVersionValorVendaDeveriaSer200() {
 
-        log.info("\n>>>>>>> Concorrência com Version <<<<<<<<<<\n");
+        log.info("\n>>>>>>> Concorrência com Version Valor venda deve ser igual a $200.00 <<<<<<<<<<\n");
 
         var produto = ProdutoLockOtimista.builder()
                 .id(id)
@@ -98,9 +99,9 @@ public class ProdutoLockOtimistaTest {
     }
 
     @Test
-    void testUpdateConcorrenteSemVersion() {
+    void testUpdateConcorrenteSemVersionValorVendaDeveriaSer200() {
 
-        log.info("\n>>>>>>> Concorrência sem Version <<<<<<<<<<\n");
+        log.info("\n>>>>>>> Concorrência sem Version Valor venda deve ser igual a $200.00 <<<<<<<<<<\n");
 
         var produto = Produto.builder()
                 .id(id)
@@ -112,7 +113,7 @@ public class ProdutoLockOtimistaTest {
         repositorySemVersion.saveAndFlush(produto);
         repositorySemVersion.getEntityManager().clear();
 
-        assertDoesNotThrow(() -> iniciarConcorreciaSemVersion());
+        assertDoesNotThrow(this::iniciarConcorreciaSemVersion);
 
         log.info("Thread principal - Recuperando produto do BD");
         produto = repositorySemVersion.findById(id).orElseThrow();
